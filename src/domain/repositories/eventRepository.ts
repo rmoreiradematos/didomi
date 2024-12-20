@@ -1,22 +1,11 @@
-import { PrismaClient } from '@prisma/client'
-import { EventRepository } from '../../domain/repositories/repositoryInterfaces'
+import { EventEntity, EventUpdateInput } from '@domain/entities/eventEntity'
 
-export class EventRepositoryPrisma implements EventRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  async create(userId: string, consents: any[]): Promise<any> {
-    return this.prisma.event.create({
-      data: {
-        userId,
-        consents,
-      },
-    })
-  }
-
-  async findAllByUserId(userId: string): Promise<any[]> {
-    return this.prisma.event.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
-    })
-  }
+export interface EventRepository {
+  create(userId: string, id: string, enabled: boolean): Promise<EventEntity>
+  findAllByUserId(userId: string): Promise<EventEntity[]>
+  findEventByUserIdAndId(
+    userId: string,
+    id: string,
+  ): Promise<EventEntity | null>
+  edit(event: EventUpdateInput): Promise<EventEntity>
 }

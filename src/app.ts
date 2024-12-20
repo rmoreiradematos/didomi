@@ -8,6 +8,7 @@ import {
   metricsEndpoint,
   metricsMiddleware,
 } from './interfaces/http/middlewares/collectMetrics'
+import { loggingMiddleware } from './interfaces/http/middlewares/logginRequestMiddleware'
 import eventRoutes from './interfaces/http/routes/eventRoutes'
 import userRoutes from './interfaces/http/routes/userRoutes'
 
@@ -19,8 +20,12 @@ const app = express()
 
 app.use(express.json())
 app.use(metricsMiddleware)
+app.use(loggingMiddleware)
 app.use('/users', userRoutes)
 app.use('/events', eventRoutes)
 app.get('/metrics', metricsEndpoint)
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'UP' })
+})
 
 export default app

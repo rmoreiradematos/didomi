@@ -1,11 +1,8 @@
-export interface UserRepository {
-  create(email: string): Promise<any>
-  findById(id: string): Promise<any | null>
-  findAll(): Promise<any[]>
-  delete(id: string): Promise<void>
-}
+import { UserEntity } from '@domain/entities/userEntity'
 
-export interface EventRepository {
-  create(userId: string, consents: any): Promise<any>
-  findAllByUserId(userId: string): Promise<any[]>
+export interface UserRepository {
+  create(email: string): Promise<UserEntity>
+  findById(id: string): Promise<UserEntity | null>
+  findAll(): Promise<UserEntity[]>
+  delete(id: string): Promise<void>
 }

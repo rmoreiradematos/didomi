@@ -11,15 +11,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  app:
-    build:
-      context: .
-    ports:
-      - '3000:3000'
-    environment:
-      DATABASE_URL: 'postgresql://postgres:postgres@postgres:5432/preference_db'
-    depends_on:
-      - postgres
-
 volumes:
   postgres_data:

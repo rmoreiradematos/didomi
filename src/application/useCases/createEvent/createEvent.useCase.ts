@@ -1,16 +1,25 @@
 import { ValidationError } from '@domain/exceptions/validationError'
-import { EventRepository } from '@domain/repositories/repositoryInterfaces'
+import { EventRepository } from '@repositories/eventRepository'
+import { UserRepository } from '@repositories/userRepository'
 import logger from '@utils/logger'
 import { CreateEventRequestModel } from './createEvent.requestModel'
 import { CreateEventResponseModel } from './createEvent.responseModel'
 
 export class CreateEventUseCase {
-  constructor(private eventRepository: EventRepository) {}
+  constructor(
+    private eventRepository: EventRepository,
+    private userRepository: UserRepository,
+  ) {}
 
   async execute(
     request: CreateEventRequestModel,
   ): Promise<CreateEventResponseModel> {
-    const { userId, consents } = request
+    const { userId, id } = request
+    const enabled = true
+    if (id !== 'email_notifications' && id !== 'sms_notifications') {
+      logger.error('Invalid event ID')
+      throw new ValidationError('Invalid event ID')
+    }
 
     logger.info(`Creating event for user ${userId}`)
 
@@ -19,19 +28,22 @@ export class CreateEventUseCase {
       throw new ValidationError('User ID is required')
     }
 
-    if (!Array.isArray(consents) || consents.length === 0) {
-      logger.error('Consents must be a non-empty array')
-      throw new ValidationError('Consents must be a non-empty array')
+    const user = await this.userRepository.findById(userId)
+
+    if (user?.consents && user.consents.length > 0) {
+      console.debug('oldEvent', user.consents)
+      const lastConsents = user.consents.at(-1)
+      await this.eventRepository.edit({ ...lastConsents, enabled: false })
     }
 
-    const event = await this.eventRepository.create(userId, consents)
+    const event = await this.eventRepository.create(userId, id, enabled)
 
     logger.debug(`createEvent.useCase > event`, event)
 
     return {
       id: event.id,
       userId: event.userId,
-      consents: event.consents,
+      enabled: event.enabled,
       createdAt: event.createdAt,
     }
   }

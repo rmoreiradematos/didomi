@@ -27,7 +27,16 @@ describe('CreateUserUseCase', () => {
     const request: CreateUserRequestModel = { email: 'invalid-email' }
 
     await expect(useCase.execute(request)).rejects.toThrow(
-      'Invalid email address',
+      'Invalid email format',
+    )
+  })
+
+  it('should throw an error when email is not provided', async () => {
+    const useCase = new CreateUserUseCase(mockUserRepository)
+    const request: CreateUserRequestModel = { email: '' }
+
+    await expect(useCase.execute(request)).rejects.toThrow(
+      'Invalid payload: "email" is required and must be a string',
     )
   })
 })

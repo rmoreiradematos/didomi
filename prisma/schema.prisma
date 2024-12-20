@@ -10,13 +10,14 @@ datasource db {
 model User {
   id       String   @id @default(uuid())
   email    String   @unique
-  events   Event[]
+  consents Event[]
 }
 
 model Event {
-  id       String   @id @default(uuid())
-  userId   String
-  user     User     @relation(fields: [userId], references: [id])
-  consents Json
+  id        String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
+  @@id([id, userId])
 }

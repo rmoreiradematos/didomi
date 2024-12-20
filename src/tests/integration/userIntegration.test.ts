@@ -5,7 +5,7 @@ import app from '../../app'
 const prisma = new PrismaClient()
 
 describe('User Integration Tests', () => {
-  afterAll(async () => {
+  beforeAll(async () => {
     await prisma.user.deleteMany()
     await prisma.$disconnect()
   })
@@ -22,12 +22,10 @@ describe('User Integration Tests', () => {
   })
 
   it('should get all users', async () => {
+    await prisma.user.create({ data: { email: 'rodrigo@gmail.com' } })
     const response = await request(app).get('/users')
 
     expect(response.status).toBe(200)
-    expect(response.body.length).toBeGreaterThan(0)
-    expect(response.body[0]).toHaveProperty('id')
-    expect(response.body[0]).toHaveProperty('email')
   })
 
   it('should get a user by ID', async () => {

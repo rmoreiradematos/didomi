@@ -1,4 +1,5 @@
-import { EventRepository } from '@domain/repositories/repositoryInterfaces'
+import { EventEntity } from '@domain/entities/eventEntity'
+import { EventRepository } from '@domain/repositories/eventRepository'
 import logger from '@utils/logger'
 import { GetEventsByUserIdRequestModel } from './getEventsByUserId.requestModel'
 import { GetEventsByUserIdResponseModel } from './getEventsByUserId.responseModel'
@@ -22,10 +23,10 @@ export class GetEventsByUserIdUseCase {
 
     logger.debug(`getEventsByUserId.useCase > events`, events)
 
-    return events.map((event) => ({
+    return events.map((event: EventEntity) => ({
       id: event.id,
       userId: event.userId,
-      consents: event.consents,
+      enabled: event.enabled,
       createdAt: event.createdAt,
     }))
   }

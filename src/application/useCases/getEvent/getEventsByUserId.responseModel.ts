@@ -1,7 +1,7 @@
 export interface GetEventsByUserIdResponseModel {
   id: string
   userId: string
-  consents: any[]
+  enabled: boolean
   createdAt: Date
 }
 ;[]

@@ -7,6 +7,7 @@ export const loggingMiddleware = (
   next: NextFunction,
 ) => {
   logger.info(`Incoming Request: ${req.method} ${req.path}`)
+  logger.info(`Request Body: ${JSON.stringify(req.body)}`)
   res.on('finish', () => {
     logger.info(`Response Status: ${res.statusCode}`)
   })

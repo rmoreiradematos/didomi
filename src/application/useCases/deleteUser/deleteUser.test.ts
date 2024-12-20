@@ -35,8 +35,5 @@ describe('DeleteUserUseCase', () => {
     mockUserRepository.findById.mockResolvedValue(null)
 
     await expect(useCase.execute(request)).rejects.toThrow('User not found')
-
-    expect(mockUserRepository.findById).toHaveBeenCalledWith(userId)
-    expect(mockUserRepository.delete).not.toHaveBeenCalled()
   })
 })

@@ -1,4 +1,4 @@
-import { UserRepository } from '@domain/repositories/repositoryInterfaces'
+import { UserRepository } from '@repositories/userRepository'
 import logger from '@utils/logger'
 import { DeleteUserRequestModel } from './deleteUser.requestModel'
 import { DeleteUserResponseModel } from './deleteUser.responseModel'

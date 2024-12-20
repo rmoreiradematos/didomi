@@ -7,14 +7,14 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "baseUrl": "./",
+    "baseUrl": "src",
     "paths": {
-      "@application/*": ["src/application/*"],
-      "@controllers/*": ["src/interfaces/http/controllers/*"],
-      "@repositories/*": ["src/domain/repositories/*"],
-      "@infraestructure/*": ["src/infraestructure/*"],
-      "@domain/*": ["src/domain/*"],
-      "@utils/*": ["src/utils/*"]
+      "@application/*": ["application/*"],
+      "@controllers/*": ["interfaces/http/controllers/*"],
+      "@repositories/*": ["domain/repositories/*"],
+      "@infraestructure/*": ["infraestructure/*"],
+      "@domain/*": ["domain/*"],
+      "@utils/*": ["utils/*"]
     }
   },
   "include": ["src"],

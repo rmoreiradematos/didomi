@@ -131,3 +131,4 @@ dist
 
 .env.prod
 .env.test
+prisma/migrations

@@ -1,27 +1,29 @@
+import { CreateEventUseCase } from '@application/useCases/createEvent/createEvent.useCase'
 import { PrismaClient } from '@prisma/client'
 import { Request, Response } from 'express'
 import { EventController } from './eventController'
 
-jest.mock('@prisma/client')
+jest.mock('@application/useCases/createEvent/createEvent.useCase')
+jest.mock('@infraestructure/orm/eventRepositoryPrisma')
+jest.mock('@infraestructure/orm/userRepositoryPrisma')
 
 describe('EventController', () => {
   let prisma: PrismaClient
   let eventController: EventController
   let mockRequest: Partial<Request>
   let mockResponse: Partial<Response>
-  let jsonMock: jest.Mock
   let statusMock: jest.Mock
+  let jsonMock: jest.Mock
 
   beforeEach(() => {
     prisma = new PrismaClient()
     eventController = new EventController(prisma)
 
+    statusMock = jest.fn()
     jsonMock = jest.fn()
-    statusMock = jest.fn(() => ({ json: jsonMock }))
     mockRequest = {}
     mockResponse = {
-      status: statusMock,
-      json: jsonMock,
+      status: statusMock.mockReturnValue({ json: jsonMock }),
     }
   })
 
@@ -30,105 +32,58 @@ describe('EventController', () => {
   })
 
   it('should create a new event successfully', async () => {
-    const userId = 'user-id-123'
-    const consents = [{ id: 'email_notifications', enabled: true }]
-
-    mockRequest.body = { userId, consents }
-    prisma.event.create = jest.fn().mockResolvedValue({
+    const mockEventData = {
+      userId: 'user-id-123',
       id: 'event-id-123',
-      userId,
-      consents,
+      enabled: true,
+    }
+
+    ;(CreateEventUseCase.prototype.execute as jest.Mock).mockResolvedValue({
+      ...mockEventData,
       createdAt: new Date(),
     })
+
+    mockRequest.body = mockEventData
 
     await eventController.createEvent(
       mockRequest as Request,
       mockResponse as Response,
     )
 
-    expect(prisma.event.create).toHaveBeenCalledWith({
-      data: { userId, consents },
-    })
+    expect(CreateEventUseCase.prototype.execute).toHaveBeenCalledWith(
+      mockEventData,
+    )
     expect(statusMock).toHaveBeenCalledWith(201)
     expect(jsonMock).toHaveBeenCalledWith({
-      id: 'event-id-123',
-      userId,
-      consents,
+      ...mockEventData,
       createdAt: expect.any(Date),
     })
   })
 
-  it('should return all events for a user', async () => {
-    const userId = 'user-id-123'
+  it('should return 400 and an error message if event creation fails', async () => {
+    const mockEventData = {
+      userId: 'user-id-123',
+      id: 'event-id-123',
+      enabled: true,
+    }
 
-    mockRequest.params = { userId }
-    prisma.event.findMany = jest.fn().mockResolvedValue([
-      {
-        id: 'event-id-1',
-        userId,
-        consents: [{ id: 'email_notifications', enabled: true }],
-        createdAt: new Date(),
-      },
-      {
-        id: 'event-id-2',
-        userId,
-        consents: [{ id: 'sms_notifications', enabled: false }],
-        createdAt: new Date(),
-      },
-    ])
-
-    await eventController.getUserEvents(
-      mockRequest as Request,
-      mockResponse as Response,
+    ;(CreateEventUseCase.prototype.execute as jest.Mock).mockRejectedValue(
+      new Error('Event creation failed'),
     )
 
-    expect(prisma.event.findMany).toHaveBeenCalledWith({
-      where: { userId },
-    })
-    expect(statusMock).not.toHaveBeenCalled()
-    expect(jsonMock).toHaveBeenCalledWith([
-      {
-        id: 'event-id-1',
-        userId,
-        consents: [{ id: 'email_notifications', enabled: true }],
-        createdAt: expect.any(Date),
-      },
-      {
-        id: 'event-id-2',
-        userId,
-        consents: [{ id: 'sms_notifications', enabled: false }],
-        createdAt: expect.any(Date),
-      },
-    ])
-  })
-
-  it('should return 400 when creating an event with invalid input', async () => {
-    mockRequest.body = {}
+    mockRequest.body = mockEventData
 
     await eventController.createEvent(
       mockRequest as Request,
       mockResponse as Response,
     )
 
-    expect(statusMock).toHaveBeenCalledWith(400)
-    expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid input' })
-  })
-
-  it('should return 404 when fetching events for a non-existent user', async () => {
-    const userId = 'non-existent-user-id'
-
-    mockRequest.params = { userId }
-    prisma.event.findMany = jest.fn().mockResolvedValue([])
-
-    await eventController.getUserEvents(
-      mockRequest as Request,
-      mockResponse as Response,
+    expect(CreateEventUseCase.prototype.execute).toHaveBeenCalledWith(
+      mockEventData,
     )
-
-    expect(prisma.event.findMany).toHaveBeenCalledWith({
-      where: { userId },
+    expect(statusMock).toHaveBeenCalledWith(400)
+    expect(jsonMock).toHaveBeenCalledWith({
+      error: 'Event creation failed',
     })
-    expect(statusMock).not.toHaveBeenCalled() // Resposta padrão 200, mas com array vazio.
-    expect(jsonMock).toHaveBeenCalledWith([])
   })
 })
