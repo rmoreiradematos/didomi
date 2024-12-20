@@ -18,7 +18,6 @@ describe('EventEntity', () => {
 
   it('should throw an error if required parameters are missing', () => {
     expect(() => new EventEntity('', '', true, new Date())).not.toThrow()
-    // Aqui não há validação explícita no construtor. Adicione validação no código, se necessário.
   })
 })
 

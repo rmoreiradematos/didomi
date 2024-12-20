@@ -29,7 +29,6 @@ describe('EventRepositoryPrisma', () => {
       const id = 'email_notifications'
       const enabled = true
 
-      // Mock para findUnique não encontrar o evento
       ;(prisma.event.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.event.create as jest.Mock).mockResolvedValue({
         id,
@@ -61,7 +60,6 @@ describe('EventRepositoryPrisma', () => {
       const id = 'email_notifications'
       const enabled = true
 
-      // Mock para findUnique encontrar o evento
       ;(prisma.event.findUnique as jest.Mock).mockResolvedValue({
         id,
         userId,
